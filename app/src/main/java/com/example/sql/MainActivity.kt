@@ -4,8 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,6 +27,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,11 +40,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             Scaffold(modifier = Modifier.fillMaxSize(), bottomBar = { MybottomBar() })
             { innerPadding ->
-                Box(modifier = Modifier.padding(innerPadding))
+                Box(modifier = Modifier.padding())
                 {
                     when (screen) {
                         "home1" -> MainScreen1()
@@ -53,15 +55,16 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    @Preview(showSystemUi = true)
     fun MybottomBar() {
-
         val bookIcon = Book_Icon().Book
         val bookicon = BookIcon().Book
         val parsonIcon = Contacs_Icon().Person
 
-        BottomAppBar(
-        )
+        val isDark = isSystemInDarkTheme()
+        val backgroundColor = if (isDark) Color(20, 20, 20) else Color(245, 248, 250)
+        val contentColor = if (isDark) Color.White else Color.Black
+
+        BottomAppBar(containerColor  = backgroundColor)
         {
             IconButton(onClick = {
                 screen = "home1"
@@ -73,16 +76,18 @@ class MainActivity : ComponentActivity() {
                         Icon(
                             Icons.Default.Person,
                             contentDescription = null,
+                            tint = contentColor,
                             modifier = Modifier.padding(start = 20.dp, top = 4.dp)
                         )
                     } else {
                         Icon(
                             parsonIcon,
                             contentDescription = null,
+                            tint = contentColor,
                             modifier = Modifier.padding(start = 20.dp, top = 4.dp)
                         )
                     }
-                    Text(text = "Contacts", modifier = Modifier.padding(top = 2.dp))
+                    Text(text = "Contacts", modifier = Modifier.padding(top = 2.dp), color = contentColor)
                 }
             }
 
@@ -95,26 +100,39 @@ class MainActivity : ComponentActivity() {
                     if (icon == "hello") {
                         Image(
                             painter = painterResource(R.drawable.book_black),
-                            contentDescription = null, modifier = Modifier.padding(start = 20.dp, top = 4.dp).size(20.dp)
+                            contentDescription = null,
+                            colorFilter = ColorFilter.tint(contentColor),
+                            modifier = Modifier
+                                .padding(start = 20.dp, top = 4.dp)
+                                .size(20.dp)
                         )
                     } else {
                         Image(
                             painter = painterResource(R.drawable.book_white),
-                            contentDescription = null, modifier = Modifier.padding(start = 20.dp, top = 4.dp).size(20.dp)
+                            contentDescription = null,
+                            colorFilter = ColorFilter.tint(contentColor),
+                            modifier = Modifier
+                                .padding(start = 20.dp, top = 4.dp)
+                                .size(20.dp)
                         )
                     }
-                    Text(text = "Organize", modifier = Modifier.padding(top = 4.dp))
+                    Text(text = "Organize", modifier = Modifier.padding(top = 4.dp), color = contentColor)
                 }
             }
         }
     }
 
     @Composable
+    @Preview(showSystemUi = true)
     fun MainScreen1() {
+        val isDark = isSystemInDarkTheme()
+        val backgroundColor = if (isDark) Color(20, 20, 20) else Color(245, 248, 250)
+        val contentColor = if (isDark) Color.White else Color.Black
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = 20.dp, end = 20.dp)
+                .background(backgroundColor)
+                .padding(bottom = 120.dp, end = 20.dp)
         ) {
             FloatingActionButton(onClick = {
                 val intent = Intent(this@MainActivity, HomePage::class.java)
@@ -128,12 +146,15 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun MainScreen2() {
+        val isDark = isSystemInDarkTheme()
+        val backgroundColor = if (isDark) Color(20, 20, 20) else Color(245, 248, 250)
+        val contentColor = if (isDark) Color.White else Color.Black
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(bottom = 50.dp, end = 30.dp)
+                .background(backgroundColor)
         ) {
-            Text(text = "hello", fontSize = 50.sp)
+            Text(text = "hello", fontSize = 50.sp, color = contentColor)
         }
     }
 }

@@ -3,6 +3,7 @@ package com.example.sql
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -62,6 +63,14 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 
 class HomePage : ComponentActivity() {
+    var name by mutableStateOf("")
+    var surname by mutableStateOf("")
+    var company by mutableStateOf("")
+    var notes by mutableStateOf("")
+    var mobileNumber by mutableStateOf("")
+    var Email by mutableStateOf("")
+    var Address by mutableStateOf("")
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -129,8 +138,22 @@ class HomePage : ComponentActivity() {
             },
             actions = {
                 Button(
-                    onClick = {},
-                    colors = ButtonDefaults.buttonColors(Color(139, 219, 255, 255)),
+                    onClick = {
+                        val db = DataHelper(this@HomePage)
+                        db.insertData(surname, name, company, mobileNumber, Email, Address, notes)
+                        Toast.makeText(this@HomePage, "$name $surname Save", Toast.LENGTH_SHORT).show()
+                        name = ""
+                        surname = ""
+                        company = ""
+                        mobileNumber = ""
+                        Email = ""
+                        Address = ""
+                        notes = ""
+                        val intent = Intent(this@HomePage, MainActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    },
+                    colors = ButtonDefaults.buttonColors(Color(41, 176, 236, 255)),
                     modifier = Modifier.padding(end = 10.dp)
                 ) {
                     Text(text = "Save", fontSize = 14.sp)
@@ -142,9 +165,7 @@ class HomePage : ComponentActivity() {
 
     @Composable
     fun ContactBook() {
-
         val configuration = LocalConfiguration.current
-        val screenHeight = configuration.screenHeightDp.dp
         var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
 
         val launcher = rememberLauncherForActivityResult(
@@ -159,12 +180,6 @@ class HomePage : ComponentActivity() {
             }
         }
 
-        var name by remember { mutableStateOf("") }
-        var surname by remember { mutableStateOf("") }
-        var email by remember { mutableStateOf("") }
-        var company by remember { mutableStateOf("") }
-        var address by remember { mutableStateOf("") }
-        var notes by remember { mutableStateOf("") }
 
         val isDark = isSystemInDarkTheme()
         val textColor = if (isDark) Color.White else Color.Black
@@ -194,8 +209,7 @@ class HomePage : ComponentActivity() {
                                 modifier = Modifier.fillMaxSize(),
                                 contentScale = ContentScale.Crop
                             )
-                        }
-                        else{
+                        } else {
                             Icon(
                                 Icons.Default.AccountCircle,
                                 contentDescription = null,
@@ -207,7 +221,7 @@ class HomePage : ComponentActivity() {
                 }
             }
             item {
-                Column(modifier = Modifier.padding(start = 20.dp, top = 20.dp)) {
+                Column(modifier = Modifier.padding(start = 45.dp, top = 20.dp)) {
                     CustomTextField(
                         value = name,
                         onValueChange = { name = it },
@@ -257,7 +271,6 @@ class HomePage : ComponentActivity() {
     @Composable
     fun ExpandablePhoneInputCard() {
         var expanded by remember { mutableStateOf(false) }
-        var mobileNumber by remember { mutableStateOf("") }
         val textColor = if (isSystemInDarkTheme()) Color.White else Color.Black
 
         Card(
@@ -309,7 +322,6 @@ class HomePage : ComponentActivity() {
     @Composable
     fun ExpandableEmailInputCard() {
         var expanded by remember { mutableStateOf(false) }
-        var Email by remember { mutableStateOf("") }
         val textColor = if (isSystemInDarkTheme()) Color.White else Color.Black
 
         Card(
@@ -357,7 +369,6 @@ class HomePage : ComponentActivity() {
     @Composable
     fun ExpandableAddressInputCard() {
         var expanded by remember { mutableStateOf(false) }
-        var Address by remember { mutableStateOf("") }
         val textColor = if (isSystemInDarkTheme()) Color.White else Color.Black
 
         Card(
