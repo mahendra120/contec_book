@@ -10,15 +10,19 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.IconButton
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Card
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,7 +47,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             Scaffold(modifier = Modifier.fillMaxSize(), bottomBar = { MybottomBar() })
             { innerPadding ->
-                Box(modifier = Modifier.padding())
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding()
+                )
                 {
                     when (screen) {
                         "home1" -> MainScreen1()
@@ -56,15 +64,13 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun MybottomBar() {
-        val bookIcon = Book_Icon().Book
-        val bookicon = BookIcon().Book
         val parsonIcon = Contacs_Icon().Person
 
         val isDark = isSystemInDarkTheme()
         val backgroundColor = if (isDark) Color(20, 20, 20) else Color(245, 248, 250)
         val contentColor = if (isDark) Color.White else Color.Black
 
-        BottomAppBar(containerColor  = backgroundColor)
+        BottomAppBar(containerColor = backgroundColor)
         {
             IconButton(onClick = {
                 screen = "home1"
@@ -87,10 +93,14 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier.padding(start = 20.dp, top = 4.dp)
                         )
                     }
-                    Text(text = "Contacts", modifier = Modifier.padding(top = 2.dp), color = contentColor)
+                    Text(
+                        text = "Contacts",
+                        fontSize = 15.sp,
+                        modifier = Modifier.padding(top = 2.dp),
+                        color = contentColor
+                    )
                 }
             }
-
             IconButton(onClick = {
                 screen = "home2"
                 icon = "hello"
@@ -116,7 +126,12 @@ class MainActivity : ComponentActivity() {
                                 .size(20.dp)
                         )
                     }
-                    Text(text = "Organize", modifier = Modifier.padding(top = 4.dp), color = contentColor)
+                    Text(
+                        text = "Organize",
+                        fontSize = 15.sp,
+                        modifier = Modifier.padding(top = 2.dp),
+                        color = contentColor
+                    )
                 }
             }
         }
@@ -125,6 +140,9 @@ class MainActivity : ComponentActivity() {
     @Composable
     @Preview(showSystemUi = true)
     fun MainScreen1() {
+        val db = DataHelper(this@MainActivity)
+        var list = db.viewdata()
+
         val isDark = isSystemInDarkTheme()
         val backgroundColor = if (isDark) Color(20, 20, 20) else Color(245, 248, 250)
         val contentColor = if (isDark) Color.White else Color.Black
@@ -132,30 +150,53 @@ class MainActivity : ComponentActivity() {
             modifier = Modifier
                 .fillMaxSize()
                 .background(backgroundColor)
-                .padding(bottom = 120.dp, end = 20.dp)
         ) {
-            FloatingActionButton(onClick = {
-                val intent = Intent(this@MainActivity, HomePage::class.java)
-                startActivity(intent)
-            }, modifier = Modifier.align(Alignment.BottomEnd))
-            {
-                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(27.dp))
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(10.dp)
+            ) {
+                items(list.size) { index ->
+                    val user = list[index]
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp)
+                            .padding(bottom = 10.dp),
+                    ) {
+
+                    }
+                }
+            }
+            Box(modifier = Modifier.fillMaxSize().padding(bottom = 110.dp, end = 20.dp)) {
+                FloatingActionButton(onClick = {
+                    val intent = Intent(this@MainActivity, HomePage::class.java)
+                    startActivity(intent)
+                }, modifier = Modifier.align(Alignment.BottomEnd))
+                {
+                    Icon(
+                        Icons.Default.Add,
+                        contentDescription = null,
+                        modifier = Modifier.size(27.dp)
+                    )
+                }
             }
         }
     }
+}
 
-    @Composable
-    fun MainScreen2() {
-        val isDark = isSystemInDarkTheme()
-        val backgroundColor = if (isDark) Color(20, 20, 20) else Color(245, 248, 250)
-        val contentColor = if (isDark) Color.White else Color.Black
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(backgroundColor)
-        ) {
-            Text(text = "hello", fontSize = 50.sp, color = contentColor)
-        }
+@Composable
+fun MainScreen2() {
+    val isDark = isSystemInDarkTheme()
+    val backgroundColor = if (isDark) Color(20, 20, 20) else Color(245, 248, 250)
+    val contentColor = if (isDark) Color.White else Color.Black
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(backgroundColor)
+    ) {
+        Text(text = "hello", fontSize = 50.sp, color = contentColor)
     }
 }
+
 

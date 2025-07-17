@@ -1,8 +1,12 @@
 package com.example.sql
 
 import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
+import android.util.Base64
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -61,8 +65,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+import java.io.ByteArrayOutputStream
 
 class HomePage : ComponentActivity() {
+
     var name by mutableStateOf("")
     var surname by mutableStateOf("")
     var company by mutableStateOf("")
@@ -70,6 +76,7 @@ class HomePage : ComponentActivity() {
     var mobileNumber by mutableStateOf("")
     var Email by mutableStateOf("")
     var Address by mutableStateOf("")
+    var imageStringData by mutableStateOf<String?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -140,8 +147,11 @@ class HomePage : ComponentActivity() {
                 Button(
                     onClick = {
                         val db = DataHelper(this@HomePage)
-                        db.insertData(surname, name, company, mobileNumber, Email, Address, notes)
-                        Toast.makeText(this@HomePage, "$name $surname Save", Toast.LENGTH_SHORT).show()
+                        db.insertData(
+                            surname, name, company, mobileNumber, Email, Address, notes , imageStringData ?: "")
+                        Log.d("90909090909090", "MyTopBar: $imageStringData , ${imageStringData?.length} ")
+                        Toast.makeText(this@HomePage, "$name $surname Save", Toast.LENGTH_SHORT)
+                            .show()
                         name = ""
                         surname = ""
                         company = ""
@@ -163,10 +173,25 @@ class HomePage : ComponentActivity() {
         )
     }
 
+//    var selectedImageUri by mutableStateOf<Uri?>(null)
+//    val launcher =
+//        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+//            if (it.resultCode == RESULT_OK) {
+//                val uri = it.data?.data!!
+//                // Use the uri to load the image
+//                // Only if you are not using crop feature:
+//                uri.let { galleryUri ->
+//                    contentResolver.takePersistableUriPermission(
+//                        uri, Intent.FLAG_GRANT_READ_URI_PERMISSION
+//                    )
+//                    selectedImageUri = galleryUri
+//                }
+//            }
+//        }
+
     @Composable
     fun ContactBook() {
         val configuration = LocalConfiguration.current
-        var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
 
         val launcher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.GetContent()
@@ -176,7 +201,17 @@ class HomePage : ComponentActivity() {
                     it,
                     Intent.FLAG_GRANT_READ_URI_PERMISSION
                 )
-                selectedImageUri = it
+//                selectedImageUri = it
+                val bitmap: Bitmap = MediaStore.Images.Media.getBitmap(contentResolver, it)
+                val byteArrayOutputStream = ByteArrayOutputStream()
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream) // Or JPEG
+                val imageBytes = byteArrayOutputStream.toByteArray()
+                imageStringData =  Base64.encodeToString(imageBytes, Base64.DEFAULT)
+
+
+//                val cleanBase64String = imageStringData?.replace("data:image/png;base64,", "")
+//                    ?.replace("data:image/jpeg;base64,", "") // Handle other formats
+//                val decodedBytes = Base64.decode(cleanBase64String, Base64.DEFAULT)
             }
         }
 
@@ -185,7 +220,9 @@ class HomePage : ComponentActivity() {
         val textColor = if (isDark) Color.White else Color.Black
         val backgroundColor = if (isDark) Color.Black else Color.White
 
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(modifier = Modifier
+            .fillMaxSize()
+            .background(backgroundColor)) {
             item {
                 Box(
                     modifier = Modifier
@@ -196,15 +233,23 @@ class HomePage : ComponentActivity() {
                     Card(
                         onClick = {
                             launcher.launch("image/*")
+//                            ImagePicker.with(this@HomePage)
+//                                .cropSquare()                 //Crop image(Optional), Check Customization for more option
+//                                .maxResultSize(
+//                                    1080,
+//                                    1080
+//                                )    //Final image resolution will be less than 1080 x 1080(Optional)
+//                                .provider(ImageProvider.BOTH) //Or bothCameraGallery()
+//                                .createIntentFromDialog { launcher.launch(it) }
                         },
                         shape = CircleShape,
                         modifier = Modifier.size(100.dp),
                         elevation = CardDefaults.cardElevation(4.dp),
                         colors = CardDefaults.cardColors(containerColor = backgroundColor)
                     ) {
-                        if (selectedImageUri != null) {
+                        if (imageStringData != null) {
                             Image(
-                                painter = rememberAsyncImagePainter(selectedImageUri),
+                                painter = rememberAsyncImagePainter(Base64.decode(imageStringData, Base64.DEFAULT)),
                                 contentDescription = null,
                                 modifier = Modifier.fillMaxSize(),
                                 contentScale = ContentScale.Crop
@@ -420,6 +465,8 @@ class HomePage : ComponentActivity() {
             ContactBook()
         }
     }
+
+
 }
 
 /*

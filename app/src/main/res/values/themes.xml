@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+<!--    <style name="Theme.SQL" parent="Theme.AppCompat.Light" />-->
     <style name="Theme.SQL" parent="android:Theme.Material.Light.NoActionBar" />
 </resources>
