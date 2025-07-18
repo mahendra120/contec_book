@@ -1,5 +1,7 @@
 package com.example.sql.ui.theme
 
+import java.io.Serializable
+
 data class User(
     val id: Int = 0,
     val name: String,
@@ -10,4 +12,4 @@ data class User(
     val address: String,
     val notes: String,
     val image: String
-)
+) :  Serializable

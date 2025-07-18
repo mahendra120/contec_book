@@ -1,25 +1,31 @@
 package com.example.sql
 
+
 import android.content.Intent
 import android.os.Bundle
+import android.util.Base64
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -31,12 +37,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
+import com.example.sql.ui.theme.Userpage
 
 class MainActivity : ComponentActivity() {
     var screen by mutableStateOf("home1")
@@ -44,9 +53,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContent {
             Scaffold(modifier = Modifier.fillMaxSize(), bottomBar = { MybottomBar() })
-            { innerPadding ->
+            { _ ->
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -65,7 +75,6 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun MybottomBar() {
         val parsonIcon = Contacs_Icon().Person
-
         val isDark = isSystemInDarkTheme()
         val backgroundColor = if (isDark) Color(20, 20, 20) else Color(245, 248, 250)
         val contentColor = if (isDark) Color.White else Color.Black
@@ -83,14 +92,14 @@ class MainActivity : ComponentActivity() {
                             Icons.Default.Person,
                             contentDescription = null,
                             tint = contentColor,
-                            modifier = Modifier.padding(start = 20.dp, top = 4.dp)
+                            modifier = Modifier.padding(start = 20.dp, top = 0.dp)
                         )
                     } else {
                         Icon(
                             parsonIcon,
                             contentDescription = null,
                             tint = contentColor,
-                            modifier = Modifier.padding(start = 20.dp, top = 4.dp)
+                            modifier = Modifier.padding(start = 20.dp, top = 0.dp)
                         )
                     }
                     Text(
@@ -113,7 +122,7 @@ class MainActivity : ComponentActivity() {
                             contentDescription = null,
                             colorFilter = ColorFilter.tint(contentColor),
                             modifier = Modifier
-                                .padding(start = 20.dp, top = 4.dp)
+                                .padding(start = 20.dp, top = 0.dp)
                                 .size(20.dp)
                         )
                     } else {
@@ -122,7 +131,7 @@ class MainActivity : ComponentActivity() {
                             contentDescription = null,
                             colorFilter = ColorFilter.tint(contentColor),
                             modifier = Modifier
-                                .padding(start = 20.dp, top = 4.dp)
+                                .padding(start = 20.dp, top = 0.dp)
                                 .size(20.dp)
                         )
                     }
@@ -154,23 +163,95 @@ class MainActivity : ComponentActivity() {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(10.dp)
+                    .padding(top = 65.dp, start = 0.dp, end = 20.dp, bottom = 80.dp)
             ) {
                 items(list.size) { index ->
                     val user = list[index]
                     Card(
+                        onClick = {
+                            var intent = Intent(this@MainActivity, Userpage::class.java)
+                            intent.putExtra("user", user)
+                            startActivity(intent)
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(100.dp)
-                            .padding(bottom = 10.dp),
+                            .height(75.dp)
+                            .padding(bottom = 5.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
                     ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 15.dp)
+                        ) {
+                            @Composable
+                            fun UserImageFromBase64(base64Image: String) {
+                                Card(
+                                    modifier = Modifier
+                                        .size(size = 50.dp)
+                                        .clip(CircleShape),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = Color.White.copy(
+                                            .2f
+                                        )
+                                    )
+                                ) {
+                                    if (base64Image != "null" && base64Image.isNotEmpty()) {
+                                        Image(
+                                            painter = rememberAsyncImagePainter(
+                                                Base64.decode(
+                                                    base64Image,
+                                                    Base64.DEFAULT
+                                                )
+                                            ),
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                .size(50.dp),
+                                            contentScale = androidx.compose.ui.layout.ContentScale.Crop
+                                        )
+                                    } else {
+                                        Text(
+                                            text = user.name[0].toString().uppercase(),
+                                            fontSize = 23.sp,
+                                            color = Color.Yellow, modifier = Modifier
+                                                .align(
+                                                    Alignment.CenterHorizontally
+                                                )
+                                                .padding(top = 12.dp)
+                                        )
+                                    }
+                                }
+                            }
 
+                            UserImageFromBase64(user.image)
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(start = 22.dp, top = 10.dp)
+                            ) {
+                                Text(
+                                    user.name,
+                                    fontSize = 23.sp,
+                                    color = contentColor,
+                                    modifier = Modifier.padding(end = 7.dp)
+                                )
+                                Text(
+                                    text = user.surname,
+                                    fontSize = 23.sp,
+                                    color = contentColor
+                                )
+                            }
+                        }
                     }
                 }
             }
-            Box(modifier = Modifier.fillMaxSize().padding(bottom = 110.dp, end = 20.dp)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = 110.dp, end = 20.dp)
+            ) {
                 FloatingActionButton(onClick = {
-                    val intent = Intent(this@MainActivity, HomePage::class.java)
+                    val intent = Intent(this@MainActivity, Adduser::class.java)
                     startActivity(intent)
                 }, modifier = Modifier.align(Alignment.BottomEnd))
                 {

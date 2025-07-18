@@ -6,7 +6,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Base64
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -67,7 +66,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import java.io.ByteArrayOutputStream
 
-class HomePage : ComponentActivity() {
+class Adduser : ComponentActivity() {
 
     var name by mutableStateOf("")
     var surname by mutableStateOf("")
@@ -146,11 +145,10 @@ class HomePage : ComponentActivity() {
             actions = {
                 Button(
                     onClick = {
-                        val db = DataHelper(this@HomePage)
+                        val db = DataHelper(this@Adduser)
                         db.insertData(
                             surname, name, company, mobileNumber, Email, Address, notes , imageStringData ?: "")
-                        Log.d("90909090909090", "MyTopBar: $imageStringData , ${imageStringData?.length} ")
-                        Toast.makeText(this@HomePage, "$name $surname Save", Toast.LENGTH_SHORT)
+                        Toast.makeText(this@Adduser, "$name $surname Save", Toast.LENGTH_SHORT)
                             .show()
                         name = ""
                         surname = ""
@@ -159,7 +157,7 @@ class HomePage : ComponentActivity() {
                         Email = ""
                         Address = ""
                         notes = ""
-                        val intent = Intent(this@HomePage, MainActivity::class.java)
+                        val intent = Intent(this@Adduser, MainActivity::class.java)
                         startActivity(intent)
                         finish()
                     },
