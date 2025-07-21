@@ -2,6 +2,7 @@ package com.example.sql.ui.theme
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -38,22 +39,35 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
 import com.example.sql.Adduser
 import com.example.sql.R
 
 class Userpage : ComponentActivity() {
+
+    var editUser: User? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        editUser = intent.getSerializableExtra("user") as? User
+
         setContent {
             Scaffold(modifier = Modifier, topBar = { MytopBar() }) { innerPadding ->
                 Box(
@@ -77,12 +91,6 @@ class Userpage : ComponentActivity() {
         val backgroundColor = if (isDark) Color(20, 20, 20) else Color(245, 248, 250)
         val contentColor = if (isDark) Color.White else Color.Black
 
-        val name = intent.getStringExtra("name")
-        val surname = intent.getStringExtra("surname")
-        val company = intent.getStringExtra("company")
-        val number = intent.getStringExtra("number")
-        val email = intent.getStringExtra("email")
-
         TopAppBar(
             colors = TopAppBarDefaults.topAppBarColors(containerColor = backgroundColor),
             title = { Text("") },
@@ -99,11 +107,7 @@ class Userpage : ComponentActivity() {
             actions = {
                 IconButton(onClick = {
                     val intent = Intent(this@Userpage, Adduser::class.java)
-                    intent.putExtra("name", name)
-                    intent.putExtra("surname", surname)
-                    intent.putExtra("company", company)
-                    intent.putExtra("number", number)
-                    intent.putExtra("email", email)
+                    intent.putExtra("user1", editUser)
                     startActivity(intent)
                 }, modifier = Modifier.padding(end = 10.dp))
                 {
@@ -120,11 +124,11 @@ class Userpage : ComponentActivity() {
         val backgroundColor = if (isDark) Color(20, 20, 20) else Color(245, 248, 250)
         val contentColor = if (isDark) Color.White else Color.Black
 
-        val name = intent.getStringExtra("name")
-        val surname = intent.getStringExtra("surname")
-        val company = intent.getStringExtra("company")
-        val number = intent.getStringExtra("number")
-        val email = intent.getStringExtra("email")
+        var name by remember { mutableStateOf(editUser?.name ?: "") }
+        var surname by remember { mutableStateOf(editUser?.surname ?: "") }
+        var company by remember { mutableStateOf(editUser?.company ?: "") }
+        var number by remember { mutableStateOf(editUser?.mobile ?: "") }
+        var email by remember { mutableStateOf(editUser?.email ?: "") }
 
         Log.d("90988786756", "MyHomePage: $name $surname $company $number $email")
         Box(
@@ -138,7 +142,45 @@ class Userpage : ComponentActivity() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 item {
-                    Row(modifier = Modifier.padding(top = 190.dp)) {
+                    @Composable
+                    fun UserImageFromBase64(base64Image: String) {
+                        Card(
+                            modifier = Modifier
+                                .size(size = 170.dp)
+                                .clip(CircleShape),
+                            colors = CardDefaults.cardColors(
+                                contentColor.copy(.5f)
+                            )
+                        ) {
+                            if (base64Image != "null" && base64Image.isNotEmpty()) {
+                                Image(
+                                    painter = rememberAsyncImagePainter(
+                                        Base64.decode(
+                                            base64Image,
+                                            Base64.DEFAULT
+                                        )
+                                    ),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(300.dp),
+                                    contentScale = ContentScale.Crop
+                                )
+                            } else {
+                                Text(
+                                    text = editUser?.name[0].toString().uppercase(),
+                                    fontSize = 90.sp, fontWeight = FontWeight.Bold,
+                                    color = Color.Yellow, modifier = Modifier
+                                        .align(
+                                            Alignment.CenterHorizontally
+                                        )
+                                        .padding(top = 38.dp)
+                                )
+                            }
+                        }
+                    }
+                    UserImageFromBase64(editUser?.image ?: "")
+
+                    Row(modifier = Modifier.padding(top = 20.dp)) {
                         Text(
                             name.toString(),
                             fontSize = 28.sp,
@@ -252,10 +294,15 @@ class Userpage : ComponentActivity() {
                     Spacer(modifier = Modifier.padding(12.dp))
                     if (number == "") {
                         Card(
+                            onClick = {
+                                val intent = Intent(this@Userpage, Adduser::class.java)
+                                intent.putExtra("user1", editUser)
+                                startActivity(intent)
+                            },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(150.dp)
-                                .padding(9.dp),
+                                .height(170.dp)
+                                .padding(13.dp),
                             colors = CardDefaults.cardColors(containerColor = contentColor.copy(.2f))
                         ) {
                             Text(
@@ -264,7 +311,7 @@ class Userpage : ComponentActivity() {
                                 modifier = Modifier.padding(start = 20.dp, top = 10.dp),
                                 color = contentColor
                             )
-                            Spacer(modifier = Modifier.padding(10.dp))
+                            Spacer(modifier = Modifier.padding(11.dp))
                             Row {
                                 Icon(
                                     Icons.Default.Call,
@@ -280,7 +327,7 @@ class Userpage : ComponentActivity() {
                                     color = contentColor
                                 )
                             }
-                            Spacer(modifier = Modifier.padding(11.dp))
+                            Spacer(modifier = Modifier.padding(13.dp))
                             Row {
                                 Icon(
                                     Icons.Default.MailOutline,
@@ -298,46 +345,29 @@ class Userpage : ComponentActivity() {
                             }
                         }
                     } else {
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(130.dp)
-                                .padding(9.dp),
-                            colors = CardDefaults.cardColors(containerColor = contentColor.copy(.2f))
-                        )
-                        {
-                            Text(
-                                "Contact info",
-                                fontSize = 17.sp,
-                                modifier = Modifier.padding(start = 20.dp, top = 10.dp),
-                                color = contentColor
-                            )
-                            Spacer(modifier = Modifier.padding(10.dp))
-                            Row(modifier = Modifier.padding(start = 13.dp)) {
-                                Icon(
-                                    Icons.Default.Call,
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .size(48.dp)
-                                        .padding(10.dp), tint = contentColor
-                                )
-                                Column(Modifier.padding(start = 7.dp, top = 5.dp)) {
-                                    Text(number.toString(), fontSize = 17.sp, color = contentColor)
-                                    Spacer(modifier = Modifier.padding(2.dp))
-                                    Text(
-                                        "Mobile",
-                                        fontSize = 14.sp,
-                                        color = contentColor,
-                                        modifier = Modifier.padding(start = 10.dp),
-                                        fontWeight = FontWeight.Bold
+                        if (email != "") {
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(190.dp)
+                                    .padding(13.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = contentColor.copy(
+                                        .2f
                                     )
-                                }
-                            }
-                            if (email != "") {
-                                Spacer(modifier = Modifier.padding(4.dp))
+                                )
+                            )
+                            {
+                                Text(
+                                    "Contact info",
+                                    fontSize = 17.sp,
+                                    modifier = Modifier.padding(start = 20.dp, top = 10.dp),
+                                    color = contentColor
+                                )
+                                Spacer(modifier = Modifier.padding(10.dp))
                                 Row(modifier = Modifier.padding(start = 13.dp)) {
                                     Icon(
-                                        Icons.Default.MailOutline,
+                                        Icons.Default.Call,
                                         contentDescription = null,
                                         modifier = Modifier
                                             .size(48.dp)
@@ -345,13 +375,88 @@ class Userpage : ComponentActivity() {
                                     )
                                     Column(Modifier.padding(start = 7.dp, top = 5.dp)) {
                                         Text(
-                                            email.toString(),
+                                            number.toString(),
                                             fontSize = 17.sp,
                                             color = contentColor
                                         )
                                         Spacer(modifier = Modifier.padding(2.dp))
                                         Text(
-                                            "email",
+                                            "Mobile",
+                                            fontSize = 14.sp,
+                                            color = contentColor,
+                                            modifier = Modifier.padding(start = 10.dp, top = 3.dp),
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                }
+                                if (email != "") {
+                                    Spacer(modifier = Modifier.padding(4.dp))
+                                    Row(modifier = Modifier.padding(start = 13.dp)) {
+                                        Icon(
+                                            Icons.Default.MailOutline,
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                .size(48.dp)
+                                                .padding(10.dp), tint = contentColor
+                                        )
+                                        Column(Modifier.padding(start = 7.dp, top = 5.dp)) {
+                                            Text(
+                                                email.toString(),
+                                                fontSize = 17.sp,
+                                                color = contentColor
+                                            )
+                                            Spacer(modifier = Modifier.padding(2.dp))
+                                            Text(
+                                                "Email",
+                                                fontSize = 14.sp,
+                                                color = contentColor,
+                                                modifier = Modifier.padding(
+                                                    start = 10.dp,
+                                                    top = 3.dp
+                                                ),
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(130.dp)
+                                    .padding(13.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = contentColor.copy(
+                                        .2f
+                                    )
+                                )
+                            )
+                            {
+                                Text(
+                                    "Contact info",
+                                    fontSize = 17.sp,
+                                    modifier = Modifier.padding(start = 20.dp, top = 10.dp),
+                                    color = contentColor
+                                )
+                                Spacer(modifier = Modifier.padding(10.dp))
+                                Row(modifier = Modifier.padding(start = 13.dp)) {
+                                    Icon(
+                                        Icons.Default.Call,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(48.dp)
+                                            .padding(10.dp), tint = contentColor
+                                    )
+                                    Column(Modifier.padding(start = 7.dp, top = 5.dp)) {
+                                        Text(
+                                            number.toString(),
+                                            fontSize = 17.sp,
+                                            color = contentColor
+                                        )
+                                        Spacer(modifier = Modifier.padding(2.dp))
+                                        Text(
+                                            "Mobile",
                                             fontSize = 14.sp,
                                             color = contentColor,
                                             modifier = Modifier.padding(start = 10.dp),
@@ -367,7 +472,7 @@ class Userpage : ComponentActivity() {
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(130.dp)
-                                    .padding(9.dp),
+                                    .padding(13.dp),
                                 colors = CardDefaults.cardColors(
                                     containerColor = contentColor.copy(
                                         .2f
@@ -376,11 +481,11 @@ class Userpage : ComponentActivity() {
                             )
                             {
                                 Text(
-                                    "About ${name.toString()}", fontSize = 17.sp,
+                                    "About ${name}", fontSize = 17.sp,
                                     modifier = Modifier.padding(start = 25.dp, top = 15.dp),
                                     color = contentColor
                                 )
-                                Row(modifier = Modifier.padding(start = 25.dp, top = 30.dp)) {
+                                Row(modifier = Modifier.padding(start = 25.dp, top = 25.dp)) {
                                     Image(
                                         painter = painterResource(R.drawable.office),
                                         contentDescription = null, modifier = Modifier.size(25.dp),

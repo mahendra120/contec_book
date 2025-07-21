@@ -170,11 +170,7 @@ class MainActivity : ComponentActivity() {
                     Card(
                         onClick = {
                             val intent = Intent(this@MainActivity, Userpage::class.java)
-                            intent.putExtra("name",user.name)
-                            intent.putExtra("surname",user.surname)
-                            intent.putExtra("company",user.company)
-                            intent.putExtra("number",user.mobile)
-                            intent.putExtra("email",user.email)
+                            intent.putExtra("user", user)
                             startActivity(intent)
                         },
                         modifier = Modifier
@@ -221,8 +217,6 @@ class MainActivity : ComponentActivity() {
                                                 )
                                                 .padding(top = 12.dp)
                                         )
-                                        intent.putExtra("contect",user.name[0].toString().uppercase())
-                                        Log.d("lkdkodjojfd", "UserImageFromBase64: ${user.name[0].toString().uppercase()}")
                                     }
                                 }
                             }

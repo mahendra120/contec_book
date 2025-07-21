@@ -1,5 +1,6 @@
 package com.example.sql
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
@@ -27,7 +28,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Call
@@ -59,14 +59,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+import com.example.sql.ui.theme.User
 import java.io.ByteArrayOutputStream
 
 class Adduser : ComponentActivity() {
+
+    var editUser: User? = null
 
     var name by mutableStateOf("")
     var surname by mutableStateOf("")
@@ -80,6 +82,18 @@ class Adduser : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        editUser = intent.getSerializableExtra("user1") as? User
+
+        imageStringData = editUser?.image
+        name = editUser?.name ?: ""
+        surname = editUser?.surname ?: ""
+        company = editUser?.company ?: ""
+        notes = editUser?.notes ?: ""
+        mobileNumber = editUser?.mobile ?: ""
+        Email = editUser?.email ?: ""
+        Address = editUser?.address ?: ""
+
         setContent {
             AppTheme {
                 Scaffold(
@@ -146,25 +160,52 @@ class Adduser : ComponentActivity() {
                 Button(
                     onClick = {
                         val db = DataHelper(this@Adduser)
-                        db.insertData(
-                            name,
-                            surname,
-                            company,
-                            mobileNumber,
-                            Email,
-                            Address,
-                            notes,
-                            imageStringData ?: ""
-                        )
-                        Toast.makeText(this@Adduser, "$name $surname Save", Toast.LENGTH_SHORT)
-                            .show()
-                        name = ""
-                        surname = ""
-                        company = ""
-                        mobileNumber = ""
-                        Email = ""
-                        Address = ""
-                        notes = ""
+                        if (editUser != null) {
+                            db.updateUser(
+                                editUser!!.id,
+                                name,
+                                surname,
+                                company,
+                                mobileNumber,
+                                Email,
+                                Address,
+                                notes,
+                                imageStringData ?: ""
+                            )
+                            Toast.makeText(
+                                this@Adduser,
+                                "$name $surname Updated",
+                                Toast.LENGTH_SHORT
+                            )
+                                .show()
+                            name = ""
+                            surname = ""
+                            company = ""
+                            mobileNumber = ""
+                            Email = ""
+                            Address = ""
+                            notes = ""
+                        } else {
+                            db.insertData(
+                                name,
+                                surname,
+                                company,
+                                mobileNumber,
+                                Email,
+                                Address,
+                                notes,
+                                imageStringData ?: ""
+                            )
+                            Toast.makeText(this@Adduser, "$name $surname Save", Toast.LENGTH_SHORT)
+                                .show()
+                            name = ""
+                            surname = ""
+                            company = ""
+                            mobileNumber = ""
+                            Email = ""
+                            Address = ""
+                            notes = ""
+                        }
                         val intent = Intent(this@Adduser, MainActivity::class.java)
                         startActivity(intent)
                         finish()
@@ -179,22 +220,7 @@ class Adduser : ComponentActivity() {
         )
     }
 
-//    var selectedImageUri by mutableStateOf<Uri?>(null)
-//    val launcher =
-//        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-//            if (it.resultCode == RESULT_OK) {
-//                val uri = it.data?.data!!
-//                // Use the uri to load the image
-//                // Only if you are not using crop feature:
-//                uri.let { galleryUri ->
-//                    contentResolver.takePersistableUriPermission(
-//                        uri, Intent.FLAG_GRANT_READ_URI_PERMISSION
-//                    )
-//                    selectedImageUri = galleryUri
-//                }
-//            }
-//        }
-
+    @SuppressLint("SuspiciousIndentation")
     @Composable
     fun ContactBook() {
         val configuration = LocalConfiguration.current
@@ -207,33 +233,27 @@ class Adduser : ComponentActivity() {
                     it,
                     Intent.FLAG_GRANT_READ_URI_PERMISSION
                 )
-//                selectedImageUri = it
                 val bitmap: Bitmap = MediaStore.Images.Media.getBitmap(contentResolver, it)
                 val byteArrayOutputStream = ByteArrayOutputStream()
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream) // Or JPEG
                 val imageBytes = byteArrayOutputStream.toByteArray()
                 imageStringData = Base64.encodeToString(imageBytes, Base64.DEFAULT)
-
-
-//                val cleanBase64String = imageStringData?.replace("data:image/png;base64,", "")
-//                    ?.replace("data:image/jpeg;base64,", "") // Handle other formats
-//                val decodedBytes = Base64.decode(cleanBase64String, Base64.DEFAULT)
             }
         }
 
-        val name1 = intent.getStringExtra("name")
-        val surname1 = intent.getStringExtra("surname")
-        val email1 = intent.getStringExtra("email")
-        val composable1 = intent.getStringExtra("company")
-        val number1 = intent.getStringExtra("number")
 
-
-        mobileNumber = number1.toString()
-        company = composable1.toString()
-        Email = email1.toString()
-        surname = surname1.toString()
-        name = name1.toString()
-
+//        Log.d(
+//            "hjhdfjs", "ContactBook: " +
+//                    "name1: $name1, surname1: $surname1, email1: $email1, composable1: $composable1, number1: $number1"
+//        )
+//
+//        if (name1 != null || surname1 != null || email1 != null || composable1 != null) {
+//            company = composable1.toString()
+//            Email = email1.toString()
+//            surname = surname1.toString()
+//            name = name1.toString()
+//            mobileNumber = number1.toString()
+//        }
 
         val isDark = isSystemInDarkTheme()
         val textColor = if (isDark) Color.White else Color.Black
@@ -254,14 +274,6 @@ class Adduser : ComponentActivity() {
                     Card(
                         onClick = {
                             launcher.launch("image/*")
-//                            ImagePicker.with(this@HomePage)
-//                                .cropSquare()                 //Crop image(Optional), Check Customization for more option
-//                                .maxResultSize(
-//                                    1080,
-//                                    1080
-//                                )    //Final image resolution will be less than 1080 x 1080(Optional)
-//                                .provider(ImageProvider.BOTH) //Or bothCameraGallery()
-//                                .createIntentFromDialog { launcher.launch(it) }
                         },
                         shape = CircleShape,
                         modifier = Modifier.size(100.dp),
@@ -373,17 +385,10 @@ class Adduser : ComponentActivity() {
                     )
                 }
                 AnimatedVisibility(visible = expanded) {
-                    OutlinedTextField(
+                    CustomTextField(
                         value = mobileNumber,
-                        onValueChange = {
-                            if (it.length <= 10 && it.all { char -> char.isDigit() }) {
-                                mobileNumber = it
-                            }
-                        },
-                        label = { Text("Phone Number", color = textColor) },
-                        leadingIcon = { Text("+91", color = textColor) },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier.padding(top = 16.dp)
+                        onValueChange = { mobileNumber = it },
+                        label = "enter phone number"
                     )
                 }
             }
@@ -424,13 +429,10 @@ class Adduser : ComponentActivity() {
                     )
                 }
                 AnimatedVisibility(visible = expanded) {
-                    OutlinedTextField(
+                    CustomTextField(
                         value = Email,
-                        onValueChange = {
-                            Email = it
-                        },
-                        label = { Text("Email address", color = textColor) },
-                        modifier = Modifier.padding(top = 16.dp)
+                        onValueChange = { Email = it },
+                        label = "enter email"
                     )
                 }
             }
@@ -471,13 +473,10 @@ class Adduser : ComponentActivity() {
                     )
                 }
                 AnimatedVisibility(visible = expanded) {
-                    OutlinedTextField(
+                    CustomTextField(
                         value = Address,
-                        onValueChange = {
-                            Address = it
-                        },
-                        label = { Text("Add address", color = textColor) },
-                        modifier = Modifier.padding(top = 16.dp)
+                        onValueChange = { Address = it },
+                        label = "enter address"
                     )
                 }
             }

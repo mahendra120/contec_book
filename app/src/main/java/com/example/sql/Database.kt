@@ -29,14 +29,31 @@ class DataHelper(context: Context) : SQLiteOpenHelper(context, "data.db", null, 
         address: String,
         notes: String,
         image: String
-        ) {
+    ) {
         val query =
             "insert into user (name,surname,company,mobile,email,address,notes,image) values ('$name','$surname','$company','$mobile','$email','$address','$notes', '$image')"
         val db = this.writableDatabase
         db.execSQL(query)
     }
 
-    fun viewdata() : MutableList<User> {
+    fun updateUser(
+        id: Int,
+        name: String,
+        surname: String,
+        company: String,
+        mobile: String,
+        email: String,
+        address: String,
+        notes: String,
+        image: String
+    ) {
+        val query =
+            "update user set name = '$name','$surname','$image','$company' ,'$mobile','$email','$address','$notes' where id = $id"
+        val db = this.writableDatabase
+        db.execSQL(query)
+    }
+
+    fun viewdata(): MutableList<User> {
         val query = "select * from user"
         val db = this.readableDatabase
         val cursor = db.rawQuery(query, null)
