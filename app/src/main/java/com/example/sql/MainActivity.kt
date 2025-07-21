@@ -1,9 +1,9 @@
 package com.example.sql
 
-
 import android.content.Intent
 import android.os.Bundle
 import android.util.Base64
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -150,7 +150,7 @@ class MainActivity : ComponentActivity() {
     @Preview(showSystemUi = true)
     fun MainScreen1() {
         val db = DataHelper(this@MainActivity)
-        var list = db.viewdata()
+        val list = db.viewdata()
 
         val isDark = isSystemInDarkTheme()
         val backgroundColor = if (isDark) Color(20, 20, 20) else Color(245, 248, 250)
@@ -169,8 +169,12 @@ class MainActivity : ComponentActivity() {
                     val user = list[index]
                     Card(
                         onClick = {
-                            var intent = Intent(this@MainActivity, Userpage::class.java)
-                            intent.putExtra("user", user)
+                            val intent = Intent(this@MainActivity, Userpage::class.java)
+                            intent.putExtra("name",user.name)
+                            intent.putExtra("surname",user.surname)
+                            intent.putExtra("company",user.company)
+                            intent.putExtra("number",user.mobile)
+                            intent.putExtra("email",user.email)
                             startActivity(intent)
                         },
                         modifier = Modifier
@@ -191,9 +195,7 @@ class MainActivity : ComponentActivity() {
                                         .size(size = 50.dp)
                                         .clip(CircleShape),
                                     colors = CardDefaults.cardColors(
-                                        containerColor = Color.White.copy(
-                                            .2f
-                                        )
+                                        contentColor.copy(.5f)
                                     )
                                 ) {
                                     if (base64Image != "null" && base64Image.isNotEmpty()) {
@@ -219,11 +221,15 @@ class MainActivity : ComponentActivity() {
                                                 )
                                                 .padding(top = 12.dp)
                                         )
+                                        intent.putExtra("contect",user.name[0].toString().uppercase())
+                                        Log.d("lkdkodjojfd", "UserImageFromBase64: ${user.name[0].toString().uppercase()}")
                                     }
                                 }
                             }
 
                             UserImageFromBase64(user.image)
+                            intent.putExtra("image", "$user.image")
+                            Log.d("jiuyui", "MainScreen1: ${user.image}")
                             Row(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -241,6 +247,8 @@ class MainActivity : ComponentActivity() {
                                     color = contentColor
                                 )
                             }
+                            intent.putExtra("name",user.name)
+                            intent.putExtra("surname",user.surname)
                         }
                     }
                 }

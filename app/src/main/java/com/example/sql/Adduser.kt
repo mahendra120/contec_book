@@ -147,7 +147,15 @@ class Adduser : ComponentActivity() {
                     onClick = {
                         val db = DataHelper(this@Adduser)
                         db.insertData(
-                            surname, name, company, mobileNumber, Email, Address, notes , imageStringData ?: "")
+                            name,
+                            surname,
+                            company,
+                            mobileNumber,
+                            Email,
+                            Address,
+                            notes,
+                            imageStringData ?: ""
+                        )
                         Toast.makeText(this@Adduser, "$name $surname Save", Toast.LENGTH_SHORT)
                             .show()
                         name = ""
@@ -204,7 +212,7 @@ class Adduser : ComponentActivity() {
                 val byteArrayOutputStream = ByteArrayOutputStream()
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream) // Or JPEG
                 val imageBytes = byteArrayOutputStream.toByteArray()
-                imageStringData =  Base64.encodeToString(imageBytes, Base64.DEFAULT)
+                imageStringData = Base64.encodeToString(imageBytes, Base64.DEFAULT)
 
 
 //                val cleanBase64String = imageStringData?.replace("data:image/png;base64,", "")
@@ -213,14 +221,29 @@ class Adduser : ComponentActivity() {
             }
         }
 
+        val name1 = intent.getStringExtra("name")
+        val surname1 = intent.getStringExtra("surname")
+        val email1 = intent.getStringExtra("email")
+        val composable1 = intent.getStringExtra("company")
+        val number1 = intent.getStringExtra("number")
+
+
+        mobileNumber = number1.toString()
+        company = composable1.toString()
+        Email = email1.toString()
+        surname = surname1.toString()
+        name = name1.toString()
+
 
         val isDark = isSystemInDarkTheme()
         val textColor = if (isDark) Color.White else Color.Black
         val backgroundColor = if (isDark) Color.Black else Color.White
 
-        LazyColumn(modifier = Modifier
-            .fillMaxSize()
-            .background(backgroundColor)) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundColor)
+        ) {
             item {
                 Box(
                     modifier = Modifier
@@ -247,7 +270,12 @@ class Adduser : ComponentActivity() {
                     ) {
                         if (imageStringData != null) {
                             Image(
-                                painter = rememberAsyncImagePainter(Base64.decode(imageStringData, Base64.DEFAULT)),
+                                painter = rememberAsyncImagePainter(
+                                    Base64.decode(
+                                        imageStringData,
+                                        Base64.DEFAULT
+                                    )
+                                ),
                                 contentDescription = null,
                                 modifier = Modifier.fillMaxSize(),
                                 contentScale = ContentScale.Crop

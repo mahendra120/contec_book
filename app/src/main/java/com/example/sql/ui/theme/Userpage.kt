@@ -1,48 +1,66 @@
 package com.example.sql.ui.theme
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MailOutline
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberImagePainter
+import androidx.compose.ui.unit.sp
+import com.example.sql.Adduser
+import com.example.sql.R
 
 class Userpage : ComponentActivity() {
-
-    var showImage: User? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-        showImage = intent.getSerializableExtra("user") as? User
-
         setContent {
-            Scaffold(modifier = Modifier,topBar = { MytopBar() }) { innerPadding ->
-                Box(modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding))
+            Scaffold(modifier = Modifier, topBar = { MytopBar() }) { innerPadding ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                )
                 {
                     MyHomePage()
                 }
@@ -59,6 +77,12 @@ class Userpage : ComponentActivity() {
         val backgroundColor = if (isDark) Color(20, 20, 20) else Color(245, 248, 250)
         val contentColor = if (isDark) Color.White else Color.Black
 
+        val name = intent.getStringExtra("name")
+        val surname = intent.getStringExtra("surname")
+        val company = intent.getStringExtra("company")
+        val number = intent.getStringExtra("number")
+        val email = intent.getStringExtra("email")
+
         TopAppBar(
             colors = TopAppBarDefaults.topAppBarColors(containerColor = backgroundColor),
             title = { Text("") },
@@ -73,7 +97,15 @@ class Userpage : ComponentActivity() {
                 }
             },
             actions = {
-                IconButton(onClick = {}, modifier = Modifier.padding(end = 10.dp))
+                IconButton(onClick = {
+                    val intent = Intent(this@Userpage, Adduser::class.java)
+                    intent.putExtra("name", name)
+                    intent.putExtra("surname", surname)
+                    intent.putExtra("company", company)
+                    intent.putExtra("number", number)
+                    intent.putExtra("email", email)
+                    startActivity(intent)
+                }, modifier = Modifier.padding(end = 10.dp))
                 {
                     Icon(Icons.Default.Edit, contentDescription = null, tint = contentColor)
                 }
@@ -87,19 +119,285 @@ class Userpage : ComponentActivity() {
         val isDark = isSystemInDarkTheme()
         val backgroundColor = if (isDark) Color(20, 20, 20) else Color(245, 248, 250)
         val contentColor = if (isDark) Color.White else Color.Black
+
+        val name = intent.getStringExtra("name")
+        val surname = intent.getStringExtra("surname")
+        val company = intent.getStringExtra("company")
+        val number = intent.getStringExtra("number")
+        val email = intent.getStringExtra("email")
+
+        Log.d("90988786756", "MyHomePage: $name $surname $company $number $email")
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(color = backgroundColor)
+                .background(backgroundColor)
         )
         {
-            Image(
-                painter = rememberImagePainter(data = showImage?.image),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(200.dp)
-                    .padding(20.dp)
-            )
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                item {
+                    Row(modifier = Modifier.padding(top = 190.dp)) {
+                        Text(
+                            name.toString(),
+                            fontSize = 28.sp,
+                            color = contentColor,
+                            modifier = Modifier.padding(end = 7.dp)
+                        )
+                        Text(
+                            surname.toString(),
+                            fontSize = 28.sp,
+                            color = contentColor,
+                            modifier = Modifier.padding(start = 7.dp)
+                        )
+                    }
+                    Text(
+                        company.toString(),
+                        fontSize = 15.sp,
+                        color = contentColor.copy(.7f),
+                        modifier = Modifier.padding(top = 10.dp)
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 30.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        Column(
+                            modifier = Modifier,
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            FloatingActionButton(
+                                onClick = { },
+                                shape = CircleShape,
+                                modifier = Modifier
+                                    .size(50.dp)
+                                    .border(1.dp, contentColor, CircleShape),
+                                containerColor = backgroundColor,
+                                contentColor = contentColor
+                            )
+                            {
+                                Icon(
+                                    Icons.Default.Call,
+                                    contentDescription = null,
+                                    tint = contentColor
+                                )
+                            }
+                            Text(
+                                "Call",
+                                fontSize = 13.sp,
+                                color = contentColor,
+                                modifier = Modifier.padding(top = 10.dp)
+                            )
+                        }
+                        Column(
+                            modifier = Modifier,
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            FloatingActionButton(
+                                onClick = { },
+                                shape = CircleShape,
+                                modifier = Modifier
+                                    .size(50.dp)
+                                    .border(1.dp, contentColor, CircleShape),
+                                containerColor = backgroundColor,
+                                contentColor = contentColor
+                            )
+                            {
+                                Image(
+                                    painter = painterResource(R.drawable.message),
+                                    contentDescription = null, modifier = Modifier.size(22.dp),
+                                    colorFilter = ColorFilter.tint(contentColor),
+                                )
+                            }
+                            Text(
+                                "Massage",
+                                fontSize = 13.sp,
+                                color = contentColor,
+                                modifier = Modifier.padding(top = 10.dp)
+                            )
+                        }
+                        Column(
+                            modifier = Modifier,
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            FloatingActionButton(
+                                onClick = { },
+                                shape = CircleShape,
+                                modifier = Modifier
+                                    .size(50.dp)
+                                    .border(1.dp, contentColor, CircleShape),
+                                containerColor = backgroundColor,
+                                contentColor = contentColor
+                            )
+                            {
+                                Image(
+                                    painter = painterResource(R.drawable.video),
+                                    contentDescription = null, modifier = Modifier.size(25.dp),
+                                    colorFilter = ColorFilter.tint(contentColor),
+                                )
+                            }
+                            Text(
+                                "Video",
+                                fontSize = 13.sp,
+                                color = contentColor,
+                                modifier = Modifier.padding(top = 10.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.padding(12.dp))
+                    if (number == "") {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(150.dp)
+                                .padding(9.dp),
+                            colors = CardDefaults.cardColors(containerColor = contentColor.copy(.2f))
+                        ) {
+                            Text(
+                                "Contact info",
+                                fontSize = 17.sp,
+                                modifier = Modifier.padding(start = 20.dp, top = 10.dp),
+                                color = contentColor
+                            )
+                            Spacer(modifier = Modifier.padding(10.dp))
+                            Row {
+                                Icon(
+                                    Icons.Default.Call,
+                                    contentDescription = null,
+                                    modifier = Modifier.padding(start = 15.dp, end = 10.dp),
+                                    tint = contentColor
+                                )
+                                Text(
+                                    "Add phone number",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 16.sp,
+                                    modifier = Modifier.padding(start = 5.dp, top = 5.dp),
+                                    color = contentColor
+                                )
+                            }
+                            Spacer(modifier = Modifier.padding(11.dp))
+                            Row {
+                                Icon(
+                                    Icons.Default.MailOutline,
+                                    contentDescription = null,
+                                    modifier = Modifier.padding(start = 15.dp, end = 10.dp),
+                                    tint = contentColor
+                                )
+                                Text(
+                                    "Add phone email",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 16.sp,
+                                    modifier = Modifier.padding(start = 5.dp, top = 5.dp),
+                                    color = contentColor
+                                )
+                            }
+                        }
+                    } else {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(130.dp)
+                                .padding(9.dp),
+                            colors = CardDefaults.cardColors(containerColor = contentColor.copy(.2f))
+                        )
+                        {
+                            Text(
+                                "Contact info",
+                                fontSize = 17.sp,
+                                modifier = Modifier.padding(start = 20.dp, top = 10.dp),
+                                color = contentColor
+                            )
+                            Spacer(modifier = Modifier.padding(10.dp))
+                            Row(modifier = Modifier.padding(start = 13.dp)) {
+                                Icon(
+                                    Icons.Default.Call,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        .padding(10.dp), tint = contentColor
+                                )
+                                Column(Modifier.padding(start = 7.dp, top = 5.dp)) {
+                                    Text(number.toString(), fontSize = 17.sp, color = contentColor)
+                                    Spacer(modifier = Modifier.padding(2.dp))
+                                    Text(
+                                        "Mobile",
+                                        fontSize = 14.sp,
+                                        color = contentColor,
+                                        modifier = Modifier.padding(start = 10.dp),
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                            if (email != "") {
+                                Spacer(modifier = Modifier.padding(4.dp))
+                                Row(modifier = Modifier.padding(start = 13.dp)) {
+                                    Icon(
+                                        Icons.Default.MailOutline,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(48.dp)
+                                            .padding(10.dp), tint = contentColor
+                                    )
+                                    Column(Modifier.padding(start = 7.dp, top = 5.dp)) {
+                                        Text(
+                                            email.toString(),
+                                            fontSize = 17.sp,
+                                            color = contentColor
+                                        )
+                                        Spacer(modifier = Modifier.padding(2.dp))
+                                        Text(
+                                            "email",
+                                            fontSize = 14.sp,
+                                            color = contentColor,
+                                            modifier = Modifier.padding(start = 10.dp),
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        Spacer(modifier = Modifier.padding(1.dp))
+                        if (company != "") {
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(130.dp)
+                                    .padding(9.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = contentColor.copy(
+                                        .2f
+                                    )
+                                )
+                            )
+                            {
+                                Text(
+                                    "About ${name.toString()}", fontSize = 17.sp,
+                                    modifier = Modifier.padding(start = 25.dp, top = 15.dp),
+                                    color = contentColor
+                                )
+                                Row(modifier = Modifier.padding(start = 25.dp, top = 30.dp)) {
+                                    Image(
+                                        painter = painterResource(R.drawable.office),
+                                        contentDescription = null, modifier = Modifier.size(25.dp),
+                                        colorFilter = ColorFilter.tint(contentColor),
+                                    )
+                                    Text(
+                                        company.toString(), fontSize = 15.sp,
+                                        color = contentColor,
+                                        modifier = Modifier.padding(start = 15.dp, top = 4.dp),
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
