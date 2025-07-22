@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Base64
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -28,6 +29,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Call
@@ -59,6 +61,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -172,6 +175,10 @@ class Adduser : ComponentActivity() {
                                 notes,
                                 imageStringData ?: ""
                             )
+                            Log.d(
+                                "79876545646",
+                                "MyTopBar: $name $surname $company $mobileNumber $Email $Address $notes $imageStringData"
+                            )
                             Toast.makeText(
                                 this@Adduser,
                                 "$name $surname Updated",
@@ -185,6 +192,10 @@ class Adduser : ComponentActivity() {
                             Email = ""
                             Address = ""
                             notes = ""
+                            imageStringData = null
+                            val intent = Intent(this@Adduser, MainActivity::class.java)
+                            startActivity(intent)
+                            finish()
                         } else {
                             db.insertData(
                                 name,
@@ -205,10 +216,11 @@ class Adduser : ComponentActivity() {
                             Email = ""
                             Address = ""
                             notes = ""
+                            imageStringData = null
+                            val intent = Intent(this@Adduser, MainActivity::class.java)
+                            startActivity(intent)
+                            finish()
                         }
-                        val intent = Intent(this@Adduser, MainActivity::class.java)
-                        startActivity(intent)
-                        finish()
                     },
                     colors = ButtonDefaults.buttonColors(Color(41, 176, 236, 255)),
                     modifier = Modifier.padding(end = 10.dp)
@@ -235,26 +247,11 @@ class Adduser : ComponentActivity() {
                 )
                 val bitmap: Bitmap = MediaStore.Images.Media.getBitmap(contentResolver, it)
                 val byteArrayOutputStream = ByteArrayOutputStream()
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream) // Or JPEG
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream) // Or JPEG
                 val imageBytes = byteArrayOutputStream.toByteArray()
                 imageStringData = Base64.encodeToString(imageBytes, Base64.DEFAULT)
             }
         }
-
-
-//        Log.d(
-//            "hjhdfjs", "ContactBook: " +
-//                    "name1: $name1, surname1: $surname1, email1: $email1, composable1: $composable1, number1: $number1"
-//        )
-//
-//        if (name1 != null || surname1 != null || email1 != null || composable1 != null) {
-//            company = composable1.toString()
-//            Email = email1.toString()
-//            surname = surname1.toString()
-//            name = name1.toString()
-//            mobileNumber = number1.toString()
-//        }
-
         val isDark = isSystemInDarkTheme()
         val textColor = if (isDark) Color.White else Color.Black
         val backgroundColor = if (isDark) Color.Black else Color.White
@@ -278,7 +275,7 @@ class Adduser : ComponentActivity() {
                         shape = CircleShape,
                         modifier = Modifier.size(100.dp),
                         elevation = CardDefaults.cardElevation(4.dp),
-                        colors = CardDefaults.cardColors(containerColor = backgroundColor)
+                        colors = CardDefaults.cardColors(containerColor = textColor)
                     ) {
                         if (imageStringData != null) {
                             Image(
@@ -297,7 +294,7 @@ class Adduser : ComponentActivity() {
                                 Icons.Default.AccountCircle,
                                 contentDescription = null,
                                 modifier = Modifier.fillMaxSize(),
-                                tint = textColor
+                                tint = backgroundColor
                             )
                         }
                     }
@@ -385,10 +382,29 @@ class Adduser : ComponentActivity() {
                     )
                 }
                 AnimatedVisibility(visible = expanded) {
-                    CustomTextField(
+                    OutlinedTextField(
                         value = mobileNumber,
-                        onValueChange = { mobileNumber = it },
-                        label = "enter phone number"
+                        onValueChange = {
+                            // Only allow digits and maximum 10 digits
+                            if (it.length <= 10 && it.all { char -> char.isDigit() }) {
+                                mobileNumber = it
+                            }
+                        },
+                        label = { Text("Enter Phone Number") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        trailingIcon = {
+                            IconButton(onClick = { mobileNumber = "" }) {
+                                Icon(
+                                    imageVector = Icons.Default.Clear,
+                                    contentDescription = "Clear",
+                                    tint = Color.Red
+                                )
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number // Number keypad
+                        )
                     )
                 }
             }
@@ -429,10 +445,24 @@ class Adduser : ComponentActivity() {
                     )
                 }
                 AnimatedVisibility(visible = expanded) {
-                    CustomTextField(
+                    OutlinedTextField(
                         value = Email,
                         onValueChange = { Email = it },
-                        label = "enter email"
+                        label = { Text("Enter Email Address") },
+                        singleLine = true,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp),
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Email
+                        ),
+                        trailingIcon = {
+                            if (Email.isNotEmpty()) {
+                                IconButton(onClick = { Email = "" }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Clear Email")
+                                }
+                            }
+                        }
                     )
                 }
             }
@@ -473,10 +503,22 @@ class Adduser : ComponentActivity() {
                     )
                 }
                 AnimatedVisibility(visible = expanded) {
-                    CustomTextField(
+                    OutlinedTextField(
                         value = Address,
                         onValueChange = { Address = it },
-                        label = "enter address"
+                        label = { Text("Enter Address") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp),
+                        singleLine = false,
+                        maxLines = 4, // Optional: show multiline input
+                        trailingIcon = {
+                            if (Address.isNotEmpty()) {
+                                IconButton(onClick = { Address = "" }) {
+                                    Icon(Icons.Default.Clear, contentDescription = "Clear Address")
+                                }
+                            }
+                        }
                     )
                 }
             }

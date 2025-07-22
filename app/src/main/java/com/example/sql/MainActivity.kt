@@ -13,6 +13,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,13 +21,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.AlertDialogDefaults.containerColor
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -166,12 +171,13 @@ class MainActivity : ComponentActivity() {
                     .padding(top = 65.dp, start = 0.dp, end = 20.dp, bottom = 80.dp)
             ) {
                 items(list.size) { index ->
-                    val user = list[index]
+                    var user = list[index]
                     Card(
                         onClick = {
                             val intent = Intent(this@MainActivity, Userpage::class.java)
                             intent.putExtra("user", user)
                             startActivity(intent)
+                            Log.d("898565232", "MainScreen1: $user")
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -226,11 +232,12 @@ class MainActivity : ComponentActivity() {
                             Log.d("jiuyui", "MainScreen1: ${user.image}")
                             Row(
                                 modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(start = 22.dp, top = 10.dp)
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 5.dp),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    user.name,
+                                    text = user.name,
                                     fontSize = 23.sp,
                                     color = contentColor,
                                     modifier = Modifier.padding(end = 7.dp)
@@ -240,9 +247,10 @@ class MainActivity : ComponentActivity() {
                                     fontSize = 23.sp,
                                     color = contentColor
                                 )
+                                Spacer(modifier = Modifier.weight(1f)) // pushes FAB to the end
+                                intent.putExtra("name", user.name)
+                                intent.putExtra("surname", user.surname)
                             }
-                            intent.putExtra("name",user.name)
-                            intent.putExtra("surname",user.surname)
                         }
                     }
                 }
@@ -267,6 +275,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
 
 @Composable
 fun MainScreen2() {

@@ -1,5 +1,6 @@
 package com.example.sql
 
+import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
@@ -47,11 +48,38 @@ class DataHelper(context: Context) : SQLiteOpenHelper(context, "data.db", null, 
         notes: String,
         image: String
     ) {
+
+        val db = this.writableDatabase
+        val values = ContentValues().apply {
+            put("name", name)
+            put("surname", surname)
+            put("company", company)
+            put("mobile", mobile)
+            put("email", email)
+            put("address", address)
+            put("notes", notes)
+            put("image", image)
+        }
+        db.update("user", values, "id = ?", arrayOf(id.toString()))
+    }
+    /*
+        fun updateUser(
+        id: Int,
+        name: String,
+        surname: String,
+        company: String,
+        mobile: String,
+        email: String,
+        address: String,
+        notes: String,
+        image: String
+    ) {
         val query =
-            "update user set name = '$name','$surname','$image','$company' ,'$mobile','$email','$address','$notes' where id = $id"
+            "update user set name = '$name', surname = '$surname', company = '$company', mobile = '$mobile', email = '$email', address = '$address',notes = '$notes' ,image =  '$image' where id = $id"
         val db = this.writableDatabase
         db.execSQL(query)
     }
+     */
 
     fun viewdata(): MutableList<User> {
         val query = "select * from user"
@@ -76,6 +104,13 @@ class DataHelper(context: Context) : SQLiteOpenHelper(context, "data.db", null, 
         }
         cursor.close()
         return list
+    }
+
+    fun deleteUser(id: Int) {
+        val query =
+            "delete from user where id = $id"
+        val db = this.writableDatabase
+        db.execSQL(query)
     }
 
 }

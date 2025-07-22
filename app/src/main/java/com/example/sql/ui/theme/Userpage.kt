@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Base64
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -31,6 +32,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MailOutline
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -49,14 +51,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
-import com.example.sql.Adduser
+
 import com.example.sql.R
+import androidx.core.net.toUri
+import com.example.sql.Adduser
+import com.example.sql.DataHelper
 
 class Userpage : ComponentActivity() {
 
@@ -113,8 +119,26 @@ class Userpage : ComponentActivity() {
                 {
                     Icon(Icons.Default.Edit, contentDescription = null, tint = contentColor)
                 }
+                Button(
+                    onClick = {
+                        if (editUser != null) {
+                            var db = DataHelper(this@Userpage)
+                            db.deleteUser(editUser!!.id)
+                            Toast.makeText(
+                                this@Userpage,
+                                "${editUser!!.name} ${editUser!!.surname} Deleted",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                ) {
+                    androidx.compose.material3.Text(
+                        "delete",
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(5.dp)
+                    )
+                }
             }
-
         )
     }
 
@@ -129,6 +153,8 @@ class Userpage : ComponentActivity() {
         var company by remember { mutableStateOf(editUser?.company ?: "") }
         var number by remember { mutableStateOf(editUser?.mobile ?: "") }
         var email by remember { mutableStateOf(editUser?.email ?: "") }
+        val context = LocalContext.current
+
 
         Log.d("90988786756", "MyHomePage: $name $surname $company $number $email")
         Box(
@@ -212,7 +238,12 @@ class Userpage : ComponentActivity() {
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             FloatingActionButton(
-                                onClick = { },
+                                onClick = {
+                                    val intent = Intent(Intent.ACTION_DIAL).apply {
+                                        data = "tel:${editUser?.mobile}".toUri()
+                                    }
+                                    context.startActivity(intent)
+                                },
                                 shape = CircleShape,
                                 modifier = Modifier
                                     .size(50.dp)
